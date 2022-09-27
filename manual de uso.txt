@@ -1,0 +1,99 @@
+
+Para enviar uma requisição à API, é necessário enviar em formato http para a porta 8000.
+O endereço do servidor ainda deverá ser definido.
+
+A API aceita os 4 principais métodos de http (GET, POST, PUT, DELETE) e responde a todos os dados utilizando
+o formato JSON.
+
+Quanto ao envio de informações inválidas, a API trata alguns dos casos, porém não todos. O objetivo é
+permitir a devolução desses erros ao aplicativo para serem tratados lá. Erros não previstos são devolvidos
+sem tratamento. No geral, são tratados erros como formato de dados e erros de conexão
+ao banco de dados.
+
+O GET busca informações dentro de uma tabela do banco de dados.
+O POST insere informações no banco de dados.
+O PUT atualiza informações nas tabelas.
+O DELETE apaga informações.
+
+
+Todos os métodos precisam de informações que devem seguir regras específicas:
+
+
+=================== REGRAS GERAIS ===================
+- Ao enviar uma requisição, é necessário passar os dados via corpo do http. (exceto método GET e DELETE).
+- Os dados devem estar em formato JSON.
+- Caso seja feito um envio à uma tabela que aceita arquivos (ex. Anexo), o arquivo deverá vir em formato BLOB.
+- As tabelas do tipo BLOB são MEDIUMBLOB, portanto aceitam apenas arquivos com tamanho máximo de 16 MB.
+- O campo 'conteudo' da tabela 'publicacao' possui um limite de 512 caracteres, portanto cada postagem deve
+ter este tamanho no máximo.
+- Campos que contem data devem receber valores no formato:
+
+aaaa-mm-dd
+
+- Campos BLOB devem ser enviados em formato hexadecimal, com '0x' no começo.
+
+
+
+=============== GET ===============
+- Por não ser uma boa prática enviar informações no corpo de um GET, é necessário enviar dados como a 
+tabela e os IDs de pesquisa via URL, seguindo o formato: 
+
+https://<endereço do servidor>:8000/<nome da tabela>/<id>/<segundo_id>
+
+- O nome da tabela pode conter apenas letras, maiúsculas e minúsculas. Nada mais. (Campo obrigatório)
+- Os IDs podem conter apenas números. Nada mais. (Campos opcionais)
+- Caso seja apenas enviado o nome da tabela, a API enviará de volta todos os dados da tabela.
+- Caso seja enviado o primeiro id, o programa procurará pelo id específico dentro da tabela.
+- Caso seja enviado também o segundo id, o programa irá pesquisar por IDs entre esses dois
+(id => resultado <= segundo_id).
+- O primeiro id não pode ser maior que o segundo.
+- Foi criado um comando especial: publiCompleta. Quando for realizado uma requisição GET com este comando
+no campo tabela, o servidor retornará registros da tabela publicação, juntamente com todas as informações
+relacionadas a cada registro. Por exemplo, se uma publicação possuir um anexo relacionado a ela, este comando
+retornaria informações sobre ambos. O objetivo é reduzir a quantidade de comandos separados.
+
+
+
+=============== POST ===============
+- O corpo pode possuir os campos 'tabela' (obrigatório), 'dados' (obrigatório) e 'anexo' (opcional).
+- O valor do campo 'tabela' deve ser composto apenas por letras maiúsculas e minúsculas.
+- O valor do campo 'dados' deve ser um array contendo os valores que serão inseridos na tabela.
+- Não é possível enviar valores vazios para ambos.
+- Quando ocorrer a falta de um dado, por exemplo, o usuário não informou algum campo, este ainda deve ser
+representado na requisição, mas sob o valor NULL. A inserção na tabela precisa que a quantidade de valores
+siga a mesma quantidade de colunas na tabela.
+- Não é necessário o envio do campo de id do registro. O próprio banco de dados atribui um id automaticamente.
+- O campo anexo serve para quando for necessário enviar um anexo no momento do envio da publicação, portanto
+só deve ser preenchido quando a tabela for 'publicacao'. Isto serve para evitar o envio de duas requisições
+separadas para fazer uma única operação. Este campo deve receber apenas o BLOB do arquivo e o nome do arquivo,
+uma vez que o idPublicacao será fornecido na hora.
+- Formato final do JSON à ser enviado:
+
+{'tabela': <nome da tabela>, 'dados': [<dado1>, <dado2>, ...], 'anexo': [<blob>, <nome_blob>]}
+
+
+
+=============== PUT ===============
+- O corpo deve possuir os campos 'tabela', 'dados' e 'id' (todos obrigatórios).
+- O valor do campo 'tabela' deve ser composto apenas por letras maiúsculas e minúsculas.
+- O valor do campo 'dados' deve ser um objeto no esquema coluna : valor para cada alteração.
+- O valor do campo 'id' deve ser um número.
+- A coluna (dentro de 'dados') deve ser a coluna que será atualizada (apenas letras maiúsculas e minúsculas),
+e o valor (tambem dentro de 'dados') deve dizer qual o valor que a coluna irá receber.
+- O id irá identificar o registro a ser alterado.
+- O formato final do JSON será:
+
+{'tabela': <nome da tabela>, 'dados': {<coluna1> : <coluna1>, <col2> : <val2> ...}, 'id': <id_registro>}
+
+
+
+=============== DELETE ===============
+- O request do tipo 'delete' funciona de maneira parecida com o tipo 'get', uma vez que também não pode ter
+um corpo declarado, portanto os dados para realizar a operação devem vir por meio do endereço url.
+- Os dados a serem enviados são: O nome da tabela e o id do registro que será excluído. (ambos obrigatórios)
+- O nome da tabela deve conter apenas letras maiúsculas e minúsculas.
+- O id do registro deve conter apenas números.
+- O formato final do request será:
+
+http://<endereço>:8000/<tabela>/<id>
+
