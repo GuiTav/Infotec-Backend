@@ -15,12 +15,20 @@ function get_info(url, callback) {
         callback(400, null, "tabela invalida");
         return;
     }
+    
+    
+    // Transformando publiCompleta em um comando, e não uma tabela
+    var comando = "";
+    if (tabela == "publiCompleta") {
+        comando = "publiCompleta";
+        tabela = "publicacao";
+    }
+
 
     var sql;
 
-    if (tabela == 'publiCompleta') { // Elaboração do sql caso seja feito um query pelo comando publiCompleta
-        tabela = 'publicacao';
-
+    if (comando == 'publiCompleta') { // Elaboração do sql caso seja feito um query pelo comando publiCompleta
+        
         // Quebrei a query em várias linhas para facilitar a leitura, mesmo tendo ficado estranho
         // Não podia pegar o blob do anexo neste query, então selecionei colunas mais específicas
 
@@ -29,7 +37,6 @@ function get_info(url, callback) {
         sql += ` FROM publicacao`;
         sql += ` LEFT JOIN anexo ON publicacao.idPublicacao = anexo.idPublicacao`;
         sql += ` LEFT JOIN usuario ON publicacao.idAutor = usuario.idUsuario`;
-        sql += ` GROUP BY publicacao.idPublicacao`
     }
     else {
         sql = `SELECT * FROM ${tabela}`;
@@ -54,14 +61,22 @@ function get_info(url, callback) {
             callback(400, null, "segundo id invalido");
             return;
         }
-        if (id > id2) {
+        if (parseInt(id) > parseInt(id2)) {
             callback(400, null, "primeiro id maior do que o segundo");
             return;
         }
-        add_command = ` WHERE WHERE ${tabela}.id${tabela[0].toUpperCase() + tabela.substring(1)} BETWEEN ${id} AND ${id2}`;
+        add_command = ` WHERE ${tabela}.id${tabela[0].toUpperCase() + tabela.substring(1)} BETWEEN ${id} AND ${id2}`;
     }
 
+
     sql += add_command;
+
+
+    // O GROUP BY precisa vir depois do WHERE no publiCompleta, por isso adicionei ele aqui
+    if (comando == "publiCompleta") {
+        sql += " GROUP BY publicacao.idPublicacao";
+    }
+
 
 
     // Conexão ao banco de dados e retorno de informações
