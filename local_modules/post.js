@@ -44,13 +44,6 @@ function post_info(req_string, callback) {
                 callback(400, null, 'anexo em formato invalido');
                 return;
             }
-
-            else {
-                if (anexo.length != 2) {
-                    callback(400, null, 'informacoes de anexo fora da quantidade esperada');
-                    return;
-                }
-            }
         }
     }
 
