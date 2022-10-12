@@ -6,12 +6,12 @@ function delete_info(url, callback) {
 
     var requisition = url.split('/');
     var tabela = requisition[0];
-    var id = requisition[1];
+    var idString = requisition[1];
 
 
     // Verificações e criação do sql
 
-    if (tabela == undefined || id == undefined) {
+    if (tabela == undefined || idString == undefined) {
         callback(400, null, 'dados nao definidos');
         return;
     }
@@ -21,12 +21,24 @@ function delete_info(url, callback) {
         return;
     }
 
-    if (!id.match('^[0-9]+$')) {
-        callback(400, null, "id invalido");
-        return;
+
+    var id = idString.split("-");
+
+    for (let i = 0; i < id.length; i++) {
+        if (!id[i].match('^[0-9]+$')) {
+            callback(400, null, "id invalido");
+            return;
+        }
     }
 
-    var sql = `DELETE FROM ${tabela} WHERE id${tabela[0].toUpperCase() + tabela.substring(1)} = ${id}`;
+    var sql = `DELETE FROM ${tabela} WHERE id${tabela[0].toUpperCase() + tabela.substring(1)} IN (`;
+    for (let i = 0; i < id.length; i++) {
+        if (i != 0) {
+            sql += ",";
+        }
+        sql += id[i]
+    }
+    sql += ')';
 
 
     // Conexão e query

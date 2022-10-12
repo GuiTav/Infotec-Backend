@@ -83,17 +83,18 @@ e o valor (tambem dentro de 'dados') deve dizer qual o valor que a coluna irá r
 - O id irá identificar o registro a ser alterado.
 - O formato final do JSON será:
 
-{'tabela': <nome da tabela>, 'dados': {<coluna1> : <coluna1>, <col2> : <val2> ...}, 'id': <id_registro>}
+{'tabela': <nome da tabela>, 'dados': {<coluna1> : <val1>, <col2> : <val2> ...}, 'id': <id_registro>}
 
 
 
 =============== DELETE ===============
 - O request do tipo 'delete' funciona de maneira parecida com o tipo 'get', uma vez que também não pode ter
 um corpo declarado, portanto os dados para realizar a operação devem vir por meio do endereço url.
-- Os dados a serem enviados são: O nome da tabela e o id do registro que será excluído. (ambos obrigatórios)
+- Os dados a serem enviados são: O nome da tabela e o(s) id(s) do(s) registro(s) que será(ão) excluído(s). (ambos obrigatórios)
 - O nome da tabela deve conter apenas letras maiúsculas e minúsculas.
-- O id do registro deve conter apenas números.
+- O(s) id(s) do(s) registro(s) deve(m) conter apenas números.
+- Caso haja mais de um registro a ser deletado, ele deve vir separado por um hífen (-)
 - O formato final do request será:
 
-http://<endereço>:8000/<tabela>/<id>
+http://<endereço>:8000/<tabela>/<id1>-<id2>-<id3>
 

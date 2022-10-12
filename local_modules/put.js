@@ -112,18 +112,7 @@ function put_info(reqString, callback) {
                     }
                 }
                 else {
-
-                    /* Quando o registro com o id passado pelo usuário não existe, o mysql ainda considera 
-                    que a consulta foi bem sucedida, mas não altera nada. Ao colocar a verificação a seguir,
-                    é possível saber quando não é alterado nada no banco de dados, seja por id inexistente
-                    ou por valor igual ao anterior (exemplo: o campo já era '123' e foi alterado para '123')*/
-
-                    if (result.changedRows == 0) {
-                        callback(404, null, 'registro nao alterado ou nao existente');
-                    }
-                    else {
-                        callback(200, 'sucesso', null);
-                    }
+                    callback(200, 'sucesso', null);
                 }
             });
         }
