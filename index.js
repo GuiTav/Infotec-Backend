@@ -1,5 +1,4 @@
 var http = require("http");
-var fs = require('fs');
 var get_info = require('./local_modules/get'); 
 var post_info = require('./local_modules/post');
 var put_info = require('./local_modules/put');

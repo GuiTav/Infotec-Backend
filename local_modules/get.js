@@ -30,7 +30,7 @@ function get_info(url, callback) {
     if (comando == 'publiCompleta') { // Elaboração do sql caso seja feito um query pelo comando publiCompleta
         
         // Quebrei a query em várias linhas para facilitar a leitura, mesmo tendo ficado estranho
-        // Não podia pegar o blob do anexo neste query, então selecionei colunas mais específicas
+        // Eu não queria enviar o blob do anexo neste query, então selecionei todas as colunas menos a do blob do anexo
 
         sql = `SELECT publicacao.*, usuario.*,`;
         sql += ` GROUP_CONCAT(anexo.idAnexo) as idAnexo, GROUP_CONCAT(anexo.nomeArquivo) as nomeArquivo`;
@@ -47,11 +47,20 @@ function get_info(url, callback) {
     var add_command = '';
 
     if (id != undefined) {
-        if (!id.match('^[0-9]+$')) {
+        if (id.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g)) {
+            add_command = ` WHERE ${tabela}.email = "${id}"`;
+            id2 = undefined;
+        }
+
+        else if (!id.match('^[0-9]+$')) {
             callback(400, null, "id invalido");
             return;
         }
-        add_command = ` WHERE ${tabela}.id${tabela[0].toUpperCase() + tabela.substring(1)} = ${id}`;
+
+        else {
+            add_command = ` WHERE ${tabela}.id${tabela[0].toUpperCase() + tabela.substring(1)} = ${id}`;
+        }
+
     }
 
 
