@@ -61,6 +61,15 @@ function post_info(req_string, callback) {
     }
 
 
+    /* Adicionamos aqui dentro a permissão do tipo "USER" para todo novo perfil, a fim de evitar que
+    alguém com acesso direto ao código do aplicativo possa modificar o valor e criar um perfil
+    com permissões de "PROFESSOR" e "MODERADOR" */
+
+    if (tabela == 'usuario') {
+        dados.push("USER");
+    }
+
+
 
     // Criação do sql
 
